@@ -1,0 +1,52 @@
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        Map<Integer, List<Integer>> map = new HashMap<>();
+        boolean[] path = new boolean[numCourses];
+        boolean[] visited = new boolean[numCourses];
+        
+        for(int i = 0; i<prerequisites.length;i++) {
+            if(map.containsKey(prerequisites[i][0])) {
+                List<Integer> list = map.get(prerequisites[i][0]);
+                list.add(prerequisites[i][1]);
+                map.put(prerequisites[i][0], list);
+            } else {
+                List<Integer> list = new ArrayList<>();
+                list.add(prerequisites[i][1]);
+                map.put(prerequisites[i][0], list);
+            }
+        }
+        
+        for(int currentCourse = 0 ; currentCourse < numCourses; currentCourse ++  ) {
+            if (isCycle(currentCourse, map, path, visited)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean isCycle(int currentCourse, Map<Integer, List<Integer>> map, boolean[] path, boolean[] visited) {
+        if(visited[currentCourse]) {
+            return false;
+        }
+        if(path[currentCourse]) {
+            return true;
+        }
+        if(!map.containsKey(currentCourse)) {
+            return false;
+        }
+        //visited[currentCourse] = true;
+        path[currentCourse] = true;
+        boolean ret = false;
+        List<Integer> neighbors = map.get(currentCourse);
+        for(int i = 0; i< neighbors.size();i++) {
+            int x = neighbors.get(i);
+            ret = isCycle(x, map, path, visited);
+            if (ret) {
+                break;
+            }
+        }
+        visited[currentCourse] = true;
+        path[currentCourse] = false;
+        return ret;
+    }
+}
