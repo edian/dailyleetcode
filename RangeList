@@ -1,0 +1,185 @@
+// Problem Set below: 
+
+// Task: Implement a class named 'RangeList'
+// A pair of integers define a range, for example: [1, 5). This range includes integers: 1, 2, 3, and 4.
+// A range list is an aggregate of these ranges: [1, 5), [10, 11), [100, 201)
+
+class RangeList {
+  constructor() {
+    //Store the range list.
+    this.ranges = []
+  }
+
+  /** 
+  * Check if input range format is valid.
+  * @param {Array<number>} range - Array of two integers that specify beginning and end of range. 
+  */
+  isValidRangeFormat(range) {
+    if (! Array.isArray(range)) {
+        console.error('Input not array.')
+        return false
+    }
+    if (range.length != 2) {
+        console.error('Input length not 2.')
+        return false
+    }
+    return true
+  }
+
+  /**
+   * Adds a range to the list.
+   * @param {Array<number>} range - Array of two integers that specify beginning and end of range.
+   */
+  add(range) {
+    // Check input format.
+    if (! this.isValidRangeFormat(range)) return
+
+    // Get the start and the end of the range.
+    let [start, end] = range
+
+    // Do nothing if the range is empty.
+    if (start >= end) return
+
+    // New range list to replace the old one at last.
+    let newRangeList = []
+
+    // Starts from index 0
+    let i = 0
+
+    // Look for where is the start of the range to be added by looping through original range list.
+    while (i < this.ranges.length) {
+        // Extract current range in the original range list.
+        const currRange = this.ranges[i]
+        const [currStart, currEnd] = currRange
+
+        if (start > currEnd) {
+            // Push the original range to the list directly, if the start of the input.
+            // range has passed current end.
+            newRangeList.push(currRange)
+            i++
+        } else {
+            // Found where is the start of the range to be added, time to break.
+            // Start of the range to be added to the new range list should be updated to current.
+            // start if current range has included the start of the input range.
+            start = start > currStart ? currStart : start
+            break
+        }
+    }
+    
+    // Record where is the start of the range to be added.
+    const startIndex = i
+    
+    // Look for where is the end of the range to be added by continuing looping through the original
+    // range list.
+    while (i < this.ranges.length) {
+        // Extract current range in the original range list.
+        const currRange = this.ranges[i]
+        const [currStart, currEnd] = currRange
+
+        if (end > currEnd) {
+            // When we can push the original range to the list directly.
+            if (i != startIndex && i != this.ranges.length - 1) {
+                newRangeList.push(currRange)
+            }
+            i++
+        } else {
+            // Found where is the end of the range to be added, time to break
+            if (end >= currStart) {
+                end = currEnd
+                i++
+            }
+            break
+        }
+    }
+
+    // Push the found start and end of the range to the back to add it to the range list.
+    newRangeList.push([start, end])
+
+    // Concatenates the left.
+    this.ranges = newRangeList.concat(this.ranges.slice(i, this.ranges.length))
+  }
+
+  /**
+   * Removes a range from the list
+   * @param {Array<number>} range - Array of two integers that specify beginning and end of range.
+   */
+  remove(range) {
+    // Check input format.
+    if (! this.isValidRangeFormat(range)) return
+
+    const [start, end] = range
+
+    // Do nothing if the range is empty.
+    if (start >= end) return
+
+    // New range list to replace the old one at last 
+    let newRangeList = []
+
+    // Starts from index 0
+    let i = 0
+
+    // Look for where is the start of the range to be removed by looping through original range list.
+    while (i < this.ranges.length) {
+        // Extract current range in the original range list
+        const currRange = this.ranges[i]
+        const [currStart, currEnd] = currRange
+
+        if (start > currEnd) {
+            // Push the original range to the list directly, if the start of the input 
+            // range has passed current end
+            newRangeList.push(currRange)
+            i++
+        } else {
+            // Found where is the start of the range to be removed, time to break
+            if (start > currStart) {
+                // Break current range if it includes the start of the range to be removed
+                newRangeList.push([currStart, start])
+            }
+            break
+        }
+    }
+  
+    // Record where is the start of the range to be removed 
+    const startIndex = i
+    
+    // Look for where is the end of the range to be removed by continuing looping through the original
+    // range list
+    while (i < this.ranges.length) {
+        // Extract current range in the original range list
+        const currRange = this.ranges[i]
+        const [currStart, currEnd]  = currRange
+
+        if (end > currEnd) {
+            // Do not append (remove) current range if end of the range to be removed passes current end
+            i++
+        } else {
+            // Found where is the end of the range to be removed, time to break after pushing the leftover
+            // of current range to the range list
+            if (end >= currStart) {
+                if (end != currEnd) {
+                    newRangeList.push([end, currEnd])
+                }
+            } else {
+                newRangeList.push(currRange)
+            }
+            i++
+            break
+        }
+    }
+
+    // Concatenates the left
+    this.ranges = newRangeList.concat(this.ranges.slice(i, this.ranges.length))
+  }
+
+  toString() {
+    let ret = this.ranges.map(([start, end], _) => `[${start}, ${end})`)
+    return ret.join(' ')
+  }
+
+  /**
+   * Prints out the list of ranges in the range list
+   */
+  print() {
+    console.log(this.toString())
+  }
+}
